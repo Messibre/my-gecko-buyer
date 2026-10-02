@@ -1,6 +1,7 @@
-import socket
 import ipaddress
+import socket
 from urllib.parse import urlparse
+
 
 def is_public_url(url: str) -> bool:
     """Returns True if the URL uses https and resolves to a safe public IP."""

@@ -1,7 +1,8 @@
 from mcp.server.mcpserver import MCPServer
+
+from buyer.check import check_all
 from buyer.intent import IntentRecord
 from buyer.prepared import Prepared
-from buyer.check import check_all
 from server.guard import is_public_url
 
 # Initialize the MCP Server
