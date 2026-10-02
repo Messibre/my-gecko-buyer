@@ -1,0 +1,13 @@
+{
+  "ask": "one latte",
+  "step": "pin",
+  "field": "product",
+  "asked": "one latte",
+  "found": "none",
+  "where": "menu",
+  "note": "No matching product found in the ask.",
+  "signed": false,
+  "intent": null,
+  "source": "devnet",
+  "at": "2026-10-02T13:05:49.011481+00:00"
+}

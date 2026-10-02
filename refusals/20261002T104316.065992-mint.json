@@ -1,0 +1,13 @@
+{
+  "ask": "one espresso",
+  "step": "check",
+  "field": "mint",
+  "asked": "E2TFDVMiYjPQGwGBkqcAz2tb96cFKVB6Y9tHZym9PZpY",
+  "found": "2JqTKJBQCtavKdTBALyTiBL69PkCyKrRwb6q65k6deLo",
+  "where": "prepared",
+  "note": "",
+  "signed": false,
+  "intent": "intents\\20261002T104312.147376-one-espresso.json",
+  "source": "devnet",
+  "at": "2026-10-02T10:43:16.067823+00:00"
+}

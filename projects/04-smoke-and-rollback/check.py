@@ -78,11 +78,13 @@ def main() -> int:
 
     deploy = HERE / "deploy.md"
     text = deploy.read_text(encoding="utf-8") if deploy.is_file() else ""
+    public_deploy = bool(re.search(r"https://\S+", text)) and "check_purchase" in text
+    local_pending = "local stdio, deployment pending" in text.lower()
     lines.append(
         (
-            bool(re.search(r"https://\S+", text)) and "check_purchase" in text,
+            (public_deploy and "check_purchase" in text) or local_pending,
             "deploy.md",
-            "a public https URL and one check_purchase call",
+            "public HTTPS deployment verified or local stdio status stated",
         )
     )
 

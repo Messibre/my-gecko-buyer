@@ -1,0 +1,13 @@
+{
+  "ask": "two bags of beans",
+  "step": "prepare",
+  "field": "gecko:receipt-failed",
+  "asked": null,
+  "found": null,
+  "where": "gecko",
+  "note": "the simulation did not pass, so no transaction is returned: a transaction that reverts against observed state would only cost you a fee on chain",
+  "signed": false,
+  "intent": "intents\\20261002T130543.719237-two-bags-of-beans.json",
+  "source": "devnet",
+  "at": "2026-10-02T13:05:45.548594+00:00"
+}

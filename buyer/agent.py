@@ -203,6 +203,9 @@ class Outcome:
     def to_json(self) -> dict[str, Any]:
         out = asdict(self)
         out["refusal"] = asdict(self.refusal) if self.refusal else None
+        for name in ("intent_path", "record_path"):
+            if out[name]:
+                out[name] = _short(out[name], Path.cwd())
         return out
 
 
