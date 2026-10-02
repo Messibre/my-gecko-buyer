@@ -12,10 +12,11 @@ import json
 import re
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from .check import NotYetWritten
+from .check import Refused, refuse
 
 
 @dataclass(frozen=True)
@@ -106,7 +107,67 @@ def parse_intent(ask: str, menu: Menu, context: Context) -> IntentRecord:
 
     Fill every field of `IntentRecord` except `pinned_at`, which stamps itself.
     """
-    raise NotYetWritten("parse_intent", "buyer/intent.py: turn the ask into an IntentRecord")
+    ask_lower = ask.lower()
+
+    # 1. Product Matching - longer ones prefered - vanilla latte vs latte
+    matched_item = None
+    sorted_products = sorted(menu.products, key=lambda p: len(p.name), reverse=True)
+    
+    for item in sorted_products:
+        if item.name.lower() in ask_lower:
+            matched_item = item
+            break
+            
+    if not matched_item:
+        raise Refused(
+            refuse(
+                field_name="product", 
+                asked=ask, 
+                found="none", 
+                where="menu", 
+                note="No matching product found in the ask."
+            )
+        )
+       
+
+    # 2. Quantity Parsing (Strip the product name first to avoid "module 3" trap)
+    quantity = 1
+    word_to_num = {
+        "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, 
+        "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10
+    }
+    
+    # Remove the product name so we don't parse numbers embedded inside it
+    ask_without_product = ask_lower.replace(matched_item.name.lower(), "")
+    
+    quantity_pattern = r'\b(\d+|' + '|'.join(word_to_num.keys()) + r')\b'
+    q_match = re.search(quantity_pattern, ask_without_product)
+    
+    if q_match:
+        val = q_match.group(1)
+        quantity = int(val) if val.isdigit() else word_to_num[val]
+
+    # 3. Budget Parsing 
+    budget_raw = context.budget_raw
+    cap_match = re.search(r'(?:up to|max(?:imum)?)\s+(\d+(?:\.\d+)?)', ask_lower)
+    
+    if cap_match:
+        cap_amount = Decimal(cap_match.group(1))
+        # Exact integer calculation using decimals
+        budget_raw = int(cap_amount * (10 ** matched_item.decimals))
+
+    return IntentRecord(
+        ask=ask,
+        store=context.store,
+        product=matched_item.name,
+        quantity=quantity,
+        budget_raw=budget_raw,
+        mint=context.pay_mint,
+        buyer=context.buyer,
+        network=context.network,
+        store_authority=menu.authority,
+        menu_price_raw=matched_item.price_raw
+    )
 
 
 def slug(text: str) -> str:

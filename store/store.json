@@ -1,9 +1,22 @@
 {
-  "store": "dev3octocat",
-  "telegram_channel": "",
+  "store": "dev3messibre",
+  "telegram_channel": "@MessiBre",
   "products": [
-    {"name": "Espresso", "price_raw": 1000000, "mint": "own"},
-    {"name": "Cookie", "price_raw": 2500000, "mint": "own"},
-    {"name": "Beans", "price_raw": 4000000, "mint": "own"}
-  ]
+    {
+      "name": "Espresso",
+      "price_raw": 1000000,
+      "mint": "own"
+    },
+    {
+      "name": "Cookie",
+      "price_raw": 2500000,
+      "mint": "own"
+    },
+    {
+      "name": "Beans",
+      "price_raw": 4000000,
+      "mint": "own"
+    }
+  ],
+  "address": "E2TFDVMiYjPQGwGBkqcAz2tb96cFKVB6Y9tHZym9PZpY"
 }

@@ -76,7 +76,12 @@ def pin_intent(run: Run) -> None:
     Leave `run.intent` (from `parse_intent`) and `run.intent_path` (from `pin`, written to
     `run.out / "intents"`). The runner checks the file is there and says the same thing.
     """
-    raise NotYetWritten("pin_intent", "buyer/agent.py: parse_intent, then pin it to disk")
+    # 1. Parse the raw text into a structured IntentRecord
+    run.intent = parse_intent(run.ask, run.menu, run.context)
+    
+    # 2. Pin (save) that intent to disk in the intents directory
+    run.intent_path = pin(run.intent, run.out / "intents")
+
 
 
 def prepare(run: Run) -> None:
@@ -87,16 +92,27 @@ def prepare(run: Run) -> None:
     `Prepared.from_answer(run.answer)` on `run.prepared`. If Gecko refuses, `from_answer`
     raises `GeckoRefused`: let it rise, the runner records it.
     """
-    raise NotYetWritten("prepare", "buyer/agent.py: call prepare_purchase with the pinned fields")
-
-
+    # 1. Ask Gecko for the transaction bytes using ONLY the pinned intent
+    run.answer = run.gecko.call(
+        "prepare_purchase",
+        {
+            "store": run.intent.store,
+            "product": run.intent.product,
+            "buyer": run.intent.buyer,
+            "network": run.intent.network,
+        }
+    )
+    
+    # 2. Parse the raw dictionary answer into a structured `Prepared` object.
+    # If Gecko refuses the request, this will automatically raise `GeckoRefused`.
+    run.prepared = Prepared.from_answer(run.answer)
 def check(run: Run) -> None:
     """TODO (project 02): compare the prepared purchase with the pin, field by field.
 
     Leave the `Verdict` from `check_all` on `run.verdict`. Do not sign here.
     """
-    raise NotYetWritten("check", "buyer/agent.py: run check_all on the pin and the prepared bytes")
-
+    # Run all the validation rules from check.py against the pinned intent and the Gecko transaction
+    run.verdict = check_all(run.intent, run.prepared)
 
 def sign(run: Run) -> None:
     """TODO (project 03): have the signer sign the exact prepared bytes, once.
@@ -104,8 +120,8 @@ def sign(run: Run) -> None:
     `run.signer.sign(run.prepared)` returns the signed base64. Leave it on `run.signed`.
     The signer refuses by itself if the cluster, the budget or the blockhash is wrong.
     """
-    raise NotYetWritten("sign", "buyer/agent.py: sign the prepared bytes with run.signer")
-
+    # Ask the local signer to cryptographically sign the transaction
+    run.signed = run.signer.sign(run.prepared)
 
 def verify(run: Run) -> None:
     """TODO (project 03): ask Gecko whether the signed bytes ARE the bytes it prepared.
@@ -114,9 +130,16 @@ def verify(run: Run) -> None:
     `binding_strength` from the prepared answer, `last_valid_block_height`, and
     `rpc_url = run.chain.rpc_url`. Leave the answer on `run.verified`.
     """
-    raise NotYetWritten("verify", "buyer/agent.py: call verify_signed_transaction")
-
-
+    run.verified = run.gecko.call(
+        "verify_signed_transaction",
+        {
+            "transaction": run.signed,
+            "binding": run.answer["binding"],
+            "binding_strength": run.answer["binding_strength"],
+            "last_valid_block_height": run.prepared.last_valid_block_height,
+            "rpc_url": run.chain.rpc_url,
+        }
+    )
 def submit(run: Run) -> None:
     """TODO (project 03): send the verified bytes, through Gecko, to the signer's own RPC.
 
@@ -125,8 +148,15 @@ def submit(run: Run) -> None:
     `run.submitted`. Never call it twice for the same bytes: if it did not confirm, read
     what it said first.
     """
-    raise NotYetWritten("submit", "buyer/agent.py: call submit_transaction")
-
+    run.submitted = run.gecko.call(
+        "submit_transaction",
+        {
+            "transaction": run.signed,
+            "binding": run.answer["binding"],
+            "last_valid_block_height": run.prepared.last_valid_block_height,
+            "rpc_url": run.chain.rpc_url,
+        }
+    )
 
 def write_the_receipt(run: Run) -> None:
     """TODO (project 03): read the ledger again and reconcile it with the first read.
@@ -134,9 +164,18 @@ def write_the_receipt(run: Run) -> None:
     `read_snapshot(...)` for the after-read, then `reconcile(...)` with `run.before`, and
     leave the `Receipt` on `run.receipt`. The runner writes it to `receipts/`.
     """
-    raise NotYetWritten("write_the_receipt", "buyer/agent.py: read the ledger and reconcile")
-
-
+    # 1. Take a snapshot of the blockchain state AFTER the transaction
+    after = read_snapshot(run.chain, run.intent, run.prepared)
+    
+    # 2. Compare the states using all 6 required parameters
+    run.receipt = reconcile(
+        intent=run.intent,
+        prepared=run.prepared,
+        before=run.before,
+        after=after,
+        submitted=run.submitted,
+        source=run.prepared.source
+    )
 # ==========================================================================================
 # The runner. Not yours to change: it is what makes the order a fact.
 # ==========================================================================================

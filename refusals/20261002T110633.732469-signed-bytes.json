@@ -1,0 +1,13 @@
+{
+  "ask": "one espresso",
+  "step": "verify",
+  "field": "signed bytes",
+  "asked": "the prepared bytes, signed",
+  "found": "different bytes",
+  "where": "verify",
+  "note": "this transaction does not match the binding \u2014 it is NOT the transaction that was checked. Do not broadcast it.",
+  "signed": true,
+  "intent": "intents\\20261002T110627.202393-one-espresso.json",
+  "source": "devnet",
+  "at": "2026-10-02T11:06:33.733934+00:00"
+}

@@ -1,0 +1,13 @@
+{
+  "ask": "one espresso",
+  "step": "prepare",
+  "field": "gecko:receipt-failed",
+  "asked": null,
+  "found": null,
+  "where": "gecko",
+  "note": "the simulation did not pass, so no transaction is returned: a transaction that reverts against observed state would only cost you a fee on chain",
+  "signed": false,
+  "intent": "intents\\20261002T113239.240320-one-espresso.json",
+  "source": "devnet",
+  "at": "2026-10-02T11:32:40.574356+00:00"
+}
